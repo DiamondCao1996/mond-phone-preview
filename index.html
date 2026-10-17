@@ -4,8 +4,8 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f8f6f0"><title>MOND · Your quiet corner</title>
 <link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./mond-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="MOND">
-  <script type="module" crossorigin src="./assets/index-CA5uPgnc.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-BHsJHcmx.css">
+  <script type="module" crossorigin src="./assets/index-CpnQkaop.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-B6VNC35S.css">
 </head>
 <body>
 <a href="#main" class="skip">Skip to content</a>
@@ -22,7 +22,7 @@
   <p class="local"><span data-icon="lock"></span> No MOND cloud sync</p>
 </aside>
 <div class="app-shell">
-  <header class="topbar"><div><p class="eyebrow" id="date"></p><span class="welcome">Welcome to your quiet corner</span></div><button id="connect-top" class="connect"><span data-icon="bluetooth"></span><span>Connect MOND</span></button></header>
+  <header class="topbar"><a class="mobile-brand" href="#home" aria-label="MOND home"><img src="./assets/mond-logo-OAe0Uk5e.png" alt="MOND" width="150" height="68"></a><div class="header-intro"><p class="eyebrow" id="date"></p><span class="welcome">Welcome to your quiet corner</span></div><label class="language-control" translate="no"><span class="sr-only">Language / 语言 / Språk</span><select id="language" aria-label="Language / 语言 / Språk"><option value="en">English</option><option value="zh-CN">简体中文</option><option value="sv">Svenska</option></select></label><button id="connect-top" class="connect"><span data-icon="bluetooth"></span><span>Connect MOND</span></button></header>
   <main id="main" tabindex="-1">
     <div class="view-heading"><div><p class="eyebrow" id="section-kicker">YOUR EVERYDAY COMPANION</p><h1 id="page-title">A moment, just for you.</h1></div><span id="source-badge" class="pill">Ready when you are</span></div>
     <section id="home-view" class="view">
@@ -42,7 +42,7 @@
     <section id="journal-view" class="view" hidden><div class="journal-intro"><p>Small observations. A little more understanding.<br>Save what you noticed, without needing to explain everything.</p><button id="journal-add" class="primary">+ Save this moment</button></div><div id="sessions" class="session-list"></div></section>
     <section id="companion-view" class="view" hidden><div class="companion-detail card"><img src="./assets/bunny-product-C3rln806.webp" alt="MOND bunny sensor"><div><span class="tiny-label">YOUR EAR-SIDE COMPANION</span><h2>Small ears.<br>A little room for you.</h2><p>Momo is here to keep you company. Connect your MOND, choose when to check in, and explore your own patterns.</p><button id="companion-connect" class="primary">Connect my MOND</button> <button id="quiet-mobile" class="outline" aria-pressed="false">Quiet display</button><p class="small">Turn on the sensor and keep it nearby. Choose your HeartRateMonitor device when the Bluetooth picker opens.</p></div></div><div class="card permission-note"><span data-icon="lock"></span><div><h2>Your moments belong to you.</h2><p>Sessions are saved only when you choose. No MOND account or cloud sync. You control export and deletion. This prototype stores data in the app’s local storage; it does not add encryption beyond your device protections. Your operating system’s backup settings may apply.</p></div></div></section>
   </main>
-  <footer><span>MOND <span aria-hidden="true">✳</span> A softer rhythm.</span><button id="about" class="text-button">About this prototype</button></footer>
+  <footer><a class="footer-brand" href="#home" aria-label="MOND home"><img src="./assets/mond-logo-OAe0Uk5e.png" alt="MOND" width="92" height="42"></a><span>A softer rhythm.</span><button id="about" class="text-button">About this prototype</button></footer>
 </div>
 <dialog id="connect-dialog" aria-label="Connect your MOND"><form method="dialog"><button class="close" aria-label="Close">×</button></form><span class="dialog-icon" data-icon="bluetooth"></span><h2>Let’s find your MOND.</h2><p>Turn your sensor on and keep it close.<br>You choose when the connection starts.</p><button class="primary full" id="scan">Find my sensor</button><div id="device-list" aria-live="polite"></div><button class="outline full" id="follow" hidden>Follow my desktop recording</button><button class="text-button full" id="dialog-demo">Just explore a sample session</button><p class="small" id="platform-note">Bluetooth is requested only when you tap Find my sensor.</p><p id="connect-error" class="error" role="alert"></p></dialog>
 <dialog id="note-dialog" aria-label="Save a moment"><form method="dialog"><button class="close" aria-label="Close">×</button></form><span class="tiny-label">A LITTLE MOMENT</span><h2>What would you like to remember?</h2><p id="feeling-summary">A note is optional. Your session is enough.</p><label for="note">Your note</label><textarea id="note" maxlength="1000" placeholder="A quieter space helped. Or maybe I just needed a pause…" rows="4"></textarea><button id="save-note" class="primary full">Save on this device</button><p class="small">This saves the last five minutes of readings and your note.</p><p id="note-error" class="error" role="alert"></p></dialog>
