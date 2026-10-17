@@ -1,0 +1,17 @@
+{
+  "name": "MOND Companion",
+  "short_name": "MOND",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8f6f0",
+  "theme_color": "#f8f6f0",
+  "icons": [
+    {
+      "src": "mond-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
