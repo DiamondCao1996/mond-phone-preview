@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#f7f8f1" />
+    <title>MOND · HRV 预测实验室</title>
+    <link rel="stylesheet" href="./prediction-lab/lab.css" />
+    <script defer src="./prediction-lab/engine.js"></script>
+    <script defer src="./prediction-lab/lab.js"></script>
+  </head>
+  <body>
+    <header>
+      <a href="./index.html" class="brand">MOND <span>← 返回主页</span></a
+      ><span class="tag">独立研究工具 · 本地运行</span>
+    </header>
+    <main>
+      <section class="intro">
+        <p class="eyebrow">PREDICTION LAB</p>
+        <h1>用数据，探索你的节奏。</h1>
+        <p>
+          编辑记录和模型参数，比较预测，再用后续实际测量检验。这个实验原型尚未经设备及前瞻性验证；它不能诊断疾病，也不能预测行动的因果效果。PPG
+          测得的是 PRV，不能直接视作 ECG HRV；质量标签由用户提供。
+        </p>
+        <div class="actions">
+          <button id="demo" class="primary">载入合成示例</button
+          ><button id="run">运行预测与回测</button
+          ><a href="#data">开始输入数据 ↓</a>
+        </div>
+        <p id="status" role="status" aria-live="polite">
+          尚未运行 · 数据默认只在当前页面内
+        </p>
+      </section>
+      <nav class="tabs" aria-label="页面导航">
+        <a href="#data">01 数据</a><a href="#settings">02 参数</a
+        ><a href="#prediction">03 预测</a><a href="#compare">04 对比</a
+        ><a href="#evaluation">05 回测</a>
+      </nav>
+      <section class="card" id="data">
+        <div class="heading">
+          <div>
+            <p class="eyebrow">01 / DATA</p>
+            <h2>准备测试数据</h2>
+            <p>
+              测量和背景分行记录；测量保留 PRV
+              来源和条件，背景包含起止及实际到达时间。可直接编辑所有字段。
+            </p>
+          </div>
+          <span id="data-count" class="badge">0 条记录</span>
+        </div>
+        <div class="actions">
+          <button id="add-measurement">＋ 测量</button
+          ><button id="add-context">＋ 背景</button
+          ><label class="button" for="import">导入 CSV / JSON</label
+          ><input
+            id="import"
+            type="file"
+            accept=".csv,.json,application/json,text/csv"
+            hidden
+          /><button id="template">下载 CSV 模板</button
+          ><button id="export-csv">导出 CSV</button>
+        </div>
+        <p class="hint">
+          时间请使用带 Z 或偏移量的 ISO 格式；时区使用 IANA 名称（如
+          Europe/Stockholm）。空白代表未知。删除仅影响此页面副本。
+        </p>
+        <div class="table-wrap"><table id="data-table"></table></div>
+        <div id="table-nav" class="actions" aria-label="数据分页"></div>
+        <details>
+          <summary>字段与示例格式</summary>
+          <p>
+            type 为 measurement 或 context。modality 标识 PPG 或 ECG；source
+            标识背景来源。time 为测量时间或背景结束时间；start
+            为背景开始时间；arrival 为可用时间。sleep 单位小时，activity
+            单位步数，rhr 单位 bpm，energy、fatigue 为 1–5，work：1 是工作、0
+            不是；diet：用户明确记录的饮食背景，1 有、0
+            无。设备与算法必须准确标识，quality 默认 good。
+          </p>
+        </details>
+        <div id="data-errors" class="error" role="alert"></div>
+      </section>
+      <section class="card" id="settings">
+        <div class="heading">
+          <div>
+            <p class="eyebrow">02 / SETTINGS</p>
+            <h2>定义你的实验</h2>
+            <p>
+              背景系数默认为零；测量来源或质量不符合条件时不会被混用。所有门槛是可修改的工程设置。
+            </p>
+          </div>
+          <button id="reset">恢复参数默认值</button>
+        </div>
+        <div id="config-fields" class="form-grid"></div>
+        <h3>背景特征与模型系数</h3>
+        <p class="hint">
+          自动参考为历史背景的每日均值；手动参考留空时使用自动值。启用特征后，如果当前值或参考缺失，模型会降级。
+        </p>
+        <div class="table-wrap"><table id="features"></table></div>
+        <div class="actions">
+          <button id="fit">用历史拟合系数</button
+          ><span id="fit-status" class="hint">系数来源：默认假设</span>
+        </div>
+        <h3>生活建议规则</h3>
+        <p class="hint">
+          数值为触发阈值，优先级越小越先展示。工作场景需明确输入
+          work=1。建议只是可选行动，不预测其效果。
+        </p>
+        <div class="table-wrap"><table id="rules"></table></div>
+      </section>
+      <section class="card" id="prediction">
+        <p class="eyebrow">03 / FORECAST</p>
+        <h2>预测与观察</h2>
+        <p id="forecast-empty">运行实验后查看预测。</p>
+        <div id="forecast" hidden>
+          <div id="forecast-cards" class="metrics"></div>
+          <p id="forecast-info"></p>
+          <div id="contributions"></div>
+          <div class="notice">
+            <strong>此刻可以尝试</strong>
+            <p id="advice"></p>
+            <p id="advice-evidence" class="hint"></p>
+          </div>
+        </div>
+      </section>
+      <section class="card" id="compare">
+        <p class="eyebrow">04 / COMPARE</p>
+        <h2>比较两种配置</h2>
+        <p>
+          保存当前配置为 A，修改参数并运行后作为
+          B。此对比反映模型对输入的敏感性，不代表行动造成的变化。
+        </p>
+        <div class="actions">
+          <button id="save-a">保存当前配置为 A</button
+          ><button id="compare-b">运行当前配置为 B</button>
+        </div>
+        <div id="compare-result" class="metrics"></div>
+      </section>
+      <section class="card" id="evaluation">
+        <p class="eyebrow">05 / EVALUATION</p>
+        <h2>用未来数据检验</h2>
+        <p>
+          时间滚动回测仅使用当时已到达的数据。更改参数后的结果属于探索性分析；冻结配置并设置留出开始时间后，可评估后续记录。
+        </p>
+        <div class="actions">
+          <button id="freeze">冻结当前配置</button
+          ><label
+            >留出开始时间 <input id="holdout" type="datetime-local" /></label
+          ><button id="holdout-run">评估冻结配置</button
+          ><span id="freeze-status" class="hint">尚未冻结</span>
+        </div>
+        <div id="chart" class="chart-empty">运行实验后查看预测与实际。</div>
+        <div id="metrics" class="table-wrap"></div>
+        <p id="evaluation-info" class="hint"></p>
+        <details>
+          <summary>证据与方法边界</summary>
+          <p>
+            页面实现连续时间衰减自回归实验模型，而非已验证的分层世界模型；默认系数不是文献效应量。预测区间来自此前的样本外残差，不保证覆盖率。主动测量与测量误差可能影响结果；合成数据不能证明有效性。
+          </p>
+          <p>
+            <a href="https://github.com/im-ethz/flirt">FLIRT 特征提取</a> ·
+            <a href="https://github.com/nijianmo/fit-rec">FitRec 运动心率</a> ·
+            <a
+              href="https://github.com/StatisticalReinforcementLearningLab/HeartstepsV1Code"
+              >HeartSteps 行动试验</a
+            >
+            · <a href="https://arxiv.org/abs/2608.15309">生理世界模型框架</a> ·
+            <a href="https://pubmed.ncbi.nlm.nih.gov/42833133/">个体睡眠研究</a>
+          </p>
+        </details>
+      </section>
+      <section class="card">
+        <p class="eyebrow">YOUR EXPERIMENT</p>
+        <h2>保存与复现</h2>
+        <p>
+          导出实验包包含输入、参数、来源、冻结配置和结果。导入同一实验包可重现。浏览器本地保存需要手动触发；共享设备上的用户可能访问这些数据。
+        </p>
+        <div class="actions">
+          <button id="export">导出完整实验包</button
+          ><button id="save-local">保存到此浏览器</button
+          ><button id="load-local">读取本地保存</button
+          ><button id="clear-local">删除本地保存</button>
+        </div>
+      </section>
+    </main>
+    <footer>MOND · HRV 预测实验室 <a href="./index.html">返回主页</a></footer>
+  </body>
+</html>
