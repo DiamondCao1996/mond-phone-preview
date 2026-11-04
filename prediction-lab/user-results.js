@@ -24,6 +24,7 @@
       reference = Math.exp(r.mu);
     if (!Number.isFinite(value) || value <= 0)
       throw Error("The saved prediction is outside the supported range.");
+    text("message", "");
     text("source", source);
     text("value", fmt(value));
     text("reference", fmt(reference) + " ms personal reference");
@@ -101,6 +102,48 @@
             "). Optional; observe how you feel."
         : "No additional action is suggested from the available context."
     );
+    const strengths = [];
+    if (r.values.sleep != null && r.values.sleep >= 7)
+      strengths.push(
+        "You logged " +
+          r.values.sleep +
+          " hours of sleep. Keep making room for rest."
+      );
+    if (r.values.activity != null && r.values.activity > 0)
+      strengths.push(
+        "You recorded movement today: " +
+          r.values.activity +
+          " steps. Every comfortable bit of activity counts."
+      );
+    if (r.days >= result.config.minDays)
+      strengths.push(
+        "Your " +
+          r.days +
+          " comparable recording dates give this estimate personal context."
+      );
+    if (!strengths.length)
+      strengths.push(
+        "You took a moment to check in. That is a useful starting point."
+      );
+    const list = (key, items) => {
+      const el = root.querySelector('[data-result="' + key + '"]');
+      el.replaceChildren();
+      items.forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        el.appendChild(li);
+      });
+    };
+    list("strengths", strengths);
+    list("suggestions", [
+      "Keep a regular wind-down time and leave space for sleep.",
+      "Choose an easy movement break if it feels comfortable.",
+      "Check again under similar quiet conditions to see how your pattern develops.",
+    ]);
+    text(
+      "encouragement",
+      "Small, consistent steps count. Let how you feel guide your pace. These observations do not establish why HRV changed."
+    );
     text(
       "uncertainty",
       "Prediction interval not available in this view. This experimental estimate has not been prospectively validated."
@@ -117,7 +160,7 @@
         new Date(result.runAt).toLocaleString("en-GB") +
         " · " +
         result.modelVersion +
-        " · saved snapshot"
+        " · result snapshot"
     );
     root.querySelector('[data-result="content"]').hidden = false;
     root.querySelector('[data-result="empty"]').hidden = true;
@@ -171,7 +214,7 @@
         posture: "seated",
         breathing: "natural",
         quality: "good",
-        rmssd: i === 0 ? 38 : 42 + Math.sin(i / 3) * 3,
+        rmssd: i === 0 ? 50 : 42 + Math.sin(i / 3) * 3,
       });
     }
     rows.push({
@@ -182,10 +225,10 @@
       time: origin.toISOString(),
       arrival: origin.toISOString(),
       timezone: "UTC",
-      sleep: 6,
-      activity: 8100,
+      sleep: 8,
+      activity: 6500,
       rhr: 63,
-      fatigue: 4,
+      fatigue: 2,
     });
     show(
       {
@@ -206,4 +249,12 @@
       "Sample only. Your measurements and saved experiments have not been changed."
     );
   };
+  function initialize() {
+    const context = document.querySelector(".wellbeing-grid");
+    if (context) context.after(root);
+    root.querySelector('[data-action="sample"]').click();
+  }
+  if (document.readyState === "loading")
+    document.addEventListener("DOMContentLoaded", initialize, { once: true });
+  else initialize();
 })();
