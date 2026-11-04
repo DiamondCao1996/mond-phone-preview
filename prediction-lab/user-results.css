@@ -1,0 +1,85 @@
+.user-forecast {
+  margin: 22px 0;
+  padding: 28px !important;
+}
+.user-forecast h2 {
+  font-family: var(--serif, Georgia, serif);
+  font-size: 30px;
+  font-weight: 400;
+  margin: 10px 0;
+}
+.user-forecast .forecast-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 15px;
+}
+.user-forecast .forecast-label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #61725f;
+}
+.user-forecast .forecast-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 25px;
+  margin-top: 20px;
+}
+.user-forecast .forecast-number {
+  background: #edf3e5;
+  border-radius: 18px;
+  padding: 25px;
+}
+.user-forecast .forecast-number strong {
+  font-size: 54px;
+  line-height: 1.2;
+  font-weight: 400;
+}
+.user-forecast p {
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 8px 0;
+}
+.user-forecast .forecast-care {
+  border-top: 1px solid #dce5d6;
+  padding-top: 15px;
+  margin-top: 15px;
+}
+.user-forecast .forecast-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  align-items: center;
+}
+.user-forecast .forecast-actions button,
+.user-forecast .forecast-actions a {
+  font-size: 12px;
+}
+.user-forecast small {
+  display: block;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #6b7866;
+}
+.user-forecast [data-result="message"] {
+  font-size: 12px;
+  color: #72583f;
+}
+.user-forecast [data-result="source"] {
+  white-space: normal;
+}
+@media (max-width: 740px) {
+  .user-forecast {
+    padding: 21px !important;
+  }
+  .user-forecast .forecast-layout {
+    grid-template-columns: 1fr;
+  }
+  .user-forecast .forecast-header {
+    display: block;
+  }
+  .user-forecast h2 {
+    font-size: 26px;
+  }
+}

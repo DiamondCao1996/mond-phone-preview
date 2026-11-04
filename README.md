@@ -50,3 +50,7 @@ Research checked 2026-11-04:
 | [Schaffarczyk et al. 2026](https://pubmed.ncbi.nlm.nih.gov/42012497/) | Ovulation-aligned cyclic GAMMs: 21 participants, 62 cycles, 1,213 daily HRV observations; flat population lnRMSSD trajectory with significant individual deviations. | Supports testing personal patterns; retrospective cycle-length alignment cannot be used as future-known input. No pretrained MOND weights were reused. |
 
 Cycle logs are optional sensitive data. They remain browser-local unless the user explicitly exports a package or saves in the browser; exported files include them.
+
+## Main-app prediction card
+
+The home screen now includes a user-facing forecast card. “Preview a sample forecast” calculates a clearly labeled synthetic example with the same engine. “View saved prediction” explicitly reads the experiment previously saved by the lab on this same browser origin, and displays its original target time, model version, reference, input quality, context and optional suggestion. It displays a saved snapshot rather than claiming a new live sensor prediction. It does not invent a prediction interval. Open the lab to calculate and save another result. No experiment is automatically loaded, persisted or uploaded by this card.
