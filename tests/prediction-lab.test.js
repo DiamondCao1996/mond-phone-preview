@@ -244,3 +244,53 @@ console.log(
 
 assert(E.validate([{ ...a[1], timezone: "" }]).length);
 assert(E.validate([{ ...a[0], energy: 2.5 }]).length);
+const cycleConfig = {
+  ...cc,
+  enabled: { ...cc.enabled, cycleLuteal: true },
+  coefficients: { ...cc.coefficients, cycleLuteal: -0.1 },
+  references: { ...cc.references, cycleLuteal: 0.5 },
+};
+const cycleRows = a.map((r) =>
+  r.type === "context"
+    ? {
+        ...r,
+        cycleLuteal: Number(r.id.slice(1)) % 2,
+        cycleStatus: "natural",
+        cycleMethod: "LH",
+        cycleId: "cycle-" + Math.floor(Number(r.id.slice(1)) / 14),
+      }
+    : r
+);
+assert.deepStrictEqual(E.validate(cycleRows), []);
+const cy = E.calc(cycleRows, cycleConfig, origin, target);
+assert(
+  Math.abs(
+    cy.contributions.cycleLuteal - -0.1 * (cy.values.cycleLuteal - 0.5)
+  ) < 1e-10
+);
+const latePhase = {
+  ...cycleRows[0],
+  id: "unknown-phase",
+  time: new Date(origin - 1000).toISOString(),
+  arrival: new Date(origin - 1000).toISOString(),
+  cycleLuteal: "",
+  cycleStatus: "unknown",
+};
+assert.strictEqual(
+  E.calc(cycleRows.concat([latePhase]), cycleConfig, origin, target).values
+    .cycleLuteal,
+  null
+);
+assert(
+  E.fit(cycleRows.slice(0, 10), cycleConfig, origin, "experimental").error
+);
+const futurePhase = cycleRows.map((r) =>
+  Date.parse(r.time) > origin ? { ...r, cycleLuteal: 1 } : r
+);
+assert.deepStrictEqual(E.calc(futurePhase, cycleConfig, origin, target), cy);
+const cycBacktest = E.backtest(cycleRows, cycleConfig);
+assert(cycBacktest.metrics.noCycle);
+assert.equal(cycBacktest.metrics.noCycle.n, cycBacktest.metrics.experimental.n);
+console.log(
+  "cycle: provenance, missingness, contribution, evidence gates, future-label leakage and ablation passed"
+);

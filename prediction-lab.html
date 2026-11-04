@@ -100,6 +100,33 @@
           <button id="fit">用历史拟合系数</button
           ><span id="fit-status" class="hint">系数来源：默认假设</span>
         </div>
+        <details open>
+          <summary>可选：月经周期与 HRV</summary>
+          <p>
+            仅在你主动记录时使用。自然周期的已知卵泡阶段记为
+            cycleLuteal=0，黄体阶段记为 1；cycleStatus=natural，cycleMethod 为
+            self_report、calendar、LH 或 hormone，cycleId
+            为本次周期标识。未知阶段留空；日历估计保留为估计，不自动判断排卵。激素避孕、妊娠、围绝经及未知状态不套用自然周期系数。
+          </p>
+          <p>
+            启用后使用预测当时已知的阶段，作为滞后背景特征，并不预测目标日阶段。系数默认零，可手动调整或个人拟合。研究平均差异不等于你的变化；每阶段至少
+            5 天、至少 2
+            个周期仅是可调工程门槛。回测额外比较“移除周期特征”，检验是否真正改善预测。不会仅因周期阶段改变生活建议。
+          </p>
+          <p>
+            <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6912442/"
+              >2019 系统综述：平均卵泡至黄体下降</a
+            >
+            ·
+            <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11666598/"
+              >2024 可穿戴模型：周期波动幅度</a
+            >
+            ·
+            <a href="https://pubmed.ncbi.nlm.nih.gov/42012497/"
+              >2026 周期广义加性混合模型：个体差异</a
+            >
+          </p>
+        </details>
         <h3>生活建议规则</h3>
         <p class="hint">
           数值为触发阈值，优先级越小越先展示。工作场景需明确输入

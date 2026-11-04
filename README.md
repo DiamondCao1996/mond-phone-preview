@@ -34,3 +34,19 @@ NODE_PATH=/tmp/mond-lab-browser/node_modules CHROME_PATH="/Applications/Google C
 ```
 
 如服务器地址不同，可设置 `LAB_URL`。
+
+## Menstrual cycle update (v1.1)
+
+Optional `cycleLuteal` is a lagged, explicitly recorded context input (0 follicular, 1 luteal); `cycleStatus=natural`, `cycleMethod=self_report|calendar|LH|hormone`, and `cycleId` preserve applicability and provenance. Missing/unknown is not follicular. Calendar labels remain estimates. No fixed 28-day assumption, ovulation inference, population correction, or phase-specific lifestyle prescription is applied. Other reproductive contexts can be recorded with status and a missing phase value; natural-cycle effects are not extrapolated to hormonal contraception, pregnancy, menopause or unknown contexts.
+
+The new feature is disabled with coefficient zero by default. When enabled, its contribution is `beta_cycle * (known_phase_at_origin - historical_phase_reference)`. The model uses information available at forecast origin, not the eventual target-day phase. Its reference, coefficient and training gates are editable. Fitting requires both phases represented on at least 5 different dates and 2 recorded cycle IDs (engineering defaults, not validation criteria). Fitting still uses chronological, per-user training and now reports a no-cycle ablation on identical evaluation samples. Prospective multi-cycle performance must justify retaining the feature. Old experiment configurations import with the feature disabled.
+
+Research checked 2026-11-04:
+
+| Source | Finding/model | Reuse boundary |
+|---|---|---|
+| [Schmalenberger et al. 2019](https://pmc.ncbi.nlm.nih.gov/articles/PMC6912442/) | Within-person meta-analysis: 37 studies, 1,004 participants; follicular-to-luteal cardiac vagal activity difference d=-0.39 (95% CI -0.67 to -0.11). | Pooled CVA metrics are not an individual RMSSD percentage or a MOND coefficient. |
+| [2024 wearable cardiovascular amplitude study](https://pmc.ncbi.nlm.nih.gov/articles/PMC11666598/) | 11,590 participants, 45,811 cycles; models quantify wearable RHR/RMSSD fluctuation amplitude. | Describes within-cycle patterns, not a validated short-rest PPG forecasting model. |
+| [Schaffarczyk et al. 2026](https://pubmed.ncbi.nlm.nih.gov/42012497/) | Ovulation-aligned cyclic GAMMs: 21 participants, 62 cycles, 1,213 daily HRV observations; flat population lnRMSSD trajectory with significant individual deviations. | Supports testing personal patterns; retrospective cycle-length alignment cannot be used as future-known input. No pretrained MOND weights were reused. |
+
+Cycle logs are optional sensitive data. They remain browser-local unless the user explicitly exports a package or saves in the browser; exported files include them.

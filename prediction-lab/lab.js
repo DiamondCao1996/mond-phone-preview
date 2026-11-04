@@ -40,6 +40,10 @@
     "fatigue",
     "work",
     "diet",
+    "cycleLuteal",
+    "cycleStatus",
+    "cycleMethod",
+    "cycleId",
   ];
   const labels = {
     id: "记录 ID",
@@ -58,6 +62,10 @@
     breathing: "呼吸",
     quality: "质量",
     rmssd: "RMSSD ms",
+    cycleLuteal: "周期阶段 0卵泡/1黄体",
+    cycleStatus: "周期状态 natural/hormonal/unknown",
+    cycleMethod: "阶段来源 self_report/calendar/LH/hormone",
+    cycleId: "周期 ID",
     sleep: "睡眠 h",
     activity: "活动 步",
     rhr: "静息心率 bpm",
@@ -78,6 +86,8 @@
   };
   state.config.zone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
   const settings = [
+    ["minPhaseDays", "周期每阶段最少日期", "number", "工程默认 5"],
+    ["minCycles", "最少已记录周期", "number", "工程默认 2"],
     ["user", "用户 ID", "text", "单人独立分析"],
     ["zone", "参考时区", "text", "IANA 时区"],
     ["origin", "预测起点 UTC", "text", "ISO 时间，须有时区偏移"],
@@ -262,7 +272,12 @@
             '" data-prop="enabled" ' +
             (state.config.enabled[k] ? "checked" : "") +
             "></td><td>" +
-            { sleep: "睡眠时长", activity: "活动量", rhr: "静息心率" }[k] +
+            {
+              sleep: "睡眠时长",
+              activity: "活动量",
+              rhr: "静息心率",
+              cycleLuteal: "已知周期阶段（可选）",
+            }[k] +
             '</td><td><input aria-label="' +
             k +
             ' 系数" type="number" step="any" data-feature="' +
@@ -276,7 +291,12 @@
             '" data-prop="references" value="' +
             esc(state.config.references[k]) +
             '"></td><td>' +
-            { sleep: "小时", activity: "步", rhr: "bpm" }[k] +
+            {
+              sleep: "小时",
+              activity: "步",
+              rhr: "bpm",
+              cycleLuteal: "0=卵泡，1=黄体；未知留空",
+            }[k] +
             "</td></tr>"
         )
         .join("") +
@@ -608,7 +628,13 @@
       if (!Array.isArray(data.state.rows) || !data.state.config)
         throw Error("实验包缺少数据或配置");
       state = data.state;
-      state.config = Object.assign(E.defaults(), state.config);
+      const previous = state.config;
+      state.config = Object.assign(E.defaults(), previous);
+      ["enabled", "coefficients", "references"].forEach(
+        (k) =>
+          (state.config[k] = Object.assign(E.defaults()[k], previous[k] || {}))
+      );
+      state.result = null;
       state.source = state.source || "导入实验包";
     } else if (Array.isArray(data)) {
       state.rows = data;
@@ -690,6 +716,7 @@
   }
   const names = {
     experimental: "实验模型",
+    noCycle: "移除周期特征",
     last: "上次值",
     mean: "个人均值",
     ar: "自回归",

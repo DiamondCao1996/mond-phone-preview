@@ -4,8 +4,8 @@
   else root.LabEngine = factory();
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
   "use strict";
-  const VERSION = "mond-lab-1.0.0";
-  const features = ["sleep", "activity", "rhr"];
+  const VERSION = "mond-lab-1.1.0";
+  const features = ["sleep", "activity", "rhr", "cycleLuteal"];
   const defaults = () => ({
     user: "demo",
     horizonHours: 24,
@@ -17,6 +17,8 @@
     tauHours: 48,
     manualReference: null,
     minFitDates: 30,
+    minPhaseDays: 5,
+    minCycles: 2,
     perParameter: 10,
     ridge: 1,
     residualDates: 30,
@@ -29,9 +31,9 @@
     posture: "seated",
     breathing: "natural",
     contextHours: 72,
-    coefficients: { sleep: 0, activity: 0, rhr: 0 },
-    references: { sleep: null, activity: null, rhr: null },
-    enabled: { sleep: false, activity: false, rhr: false },
+    coefficients: { sleep: 0, activity: 0, rhr: 0, cycleLuteal: 0 },
+    references: { sleep: null, activity: null, rhr: null, cycleLuteal: null },
+    enabled: { sleep: false, activity: false, rhr: false, cycleLuteal: false },
     coefficientSource: "default",
     rules: [
       {
@@ -172,6 +174,16 @@
         if (number(r[k]) !== null && ![0, 1].includes(number(r[k])))
           e.push(k + " 须为 0 或 1");
       });
+      if (
+        number(r.cycleLuteal) !== null &&
+        (![0, 1].includes(number(r.cycleLuteal)) ||
+          r.cycleStatus !== "natural" ||
+          !["self_report", "calendar", "LH", "hormone"].includes(
+            r.cycleMethod
+          ) ||
+          !r.cycleId)
+      )
+        e.push("周期特征需 0/1、natural 状态、cycleId 和已知 cycleMethod");
       if (e.length) errors.push("第 " + (i + 1) + " 行：" + e.join("、"));
     });
     return errors;
@@ -234,9 +246,23 @@
       )
       .sort((a, b) => time(b.time) - time(a.time));
     const out = {};
-    ["sleep", "activity", "rhr", "fatigue", "work", "diet"].forEach((k) => {
-      const r = pool.find((x) => number(x[k]) !== null);
-      out[k] = r ? number(r[k]) : null;
+    [
+      "sleep",
+      "activity",
+      "rhr",
+      "fatigue",
+      "work",
+      "diet",
+      "cycleLuteal",
+    ].forEach((k) => {
+      const r =
+        k === "cycleLuteal"
+          ? pool.find((x) => x.cycleStatus)
+          : pool.find((x) => number(x[k]) !== null);
+      out[k] =
+        r && (k !== "cycleLuteal" || r.cycleStatus === "natural")
+          ? number(r[k])
+          : null;
     });
     return out;
   }
@@ -255,7 +281,10 @@
       }
       const byDay = {};
       hist.forEach((r) => {
-        let v = number(r[k]);
+        let v =
+          k === "cycleLuteal" && r.cycleStatus !== "natural"
+            ? null
+            : number(r[k]);
         if (v !== null) {
           const d = localParts(r.time, r.timezone).date;
           (byDay[d] || (byDay[d] = [])).push(v);
@@ -415,6 +444,34 @@
   function fit(rows, c, cutoff, mode, cache) {
     const keys = features.filter((k) => c.enabled[k]);
     if (!keys.length) return { error: "请至少启用一个背景特征。" };
+    if (c.enabled.cycleLuteal) {
+      const eligible = selectedAt(rows, c, cutoff).filter(
+        (r) =>
+          r.type === "context" &&
+          r.cycleStatus === "natural" &&
+          number(r.cycleLuteal) !== null
+      );
+      const phaseDays = [0, 1].map(
+        (p) =>
+          new Set(
+            eligible
+              .filter((r) => number(r.cycleLuteal) === p)
+              .map((r) => localParts(r.time, r.timezone).date)
+          ).size
+      );
+      if (
+        phaseDays.some((n) => n < (c.minPhaseDays || 5)) ||
+        new Set(eligible.map((r) => r.cycleId)).size < (c.minCycles || 2)
+      )
+        return {
+          error:
+            "周期拟合需要两个阶段各至少 " +
+            (c.minPhaseDays || 5) +
+            " 个日期，且至少 " +
+            (c.minCycles || 2) +
+            " 个已记录周期。",
+        };
+    }
     const ps = pairs(rows, c, cutoff);
     const examples = [];
     ps.forEach((p) => {
@@ -534,6 +591,28 @@
         exclusions.notReady++;
         return;
       }
+      if (c.enabled.cycleLuteal) {
+        const without = { ...c, enabled: { ...c.enabled, cycleLuteal: false } };
+        let nc = cf;
+        if (
+          c.coefficientSource === "fitted" &&
+          features.some((k) => without.enabled[k])
+        ) {
+          const f = fit(rows, without, origin, "experimental");
+          if (f.error) {
+            exclusions.fit++;
+            return;
+          }
+          nc = f.coefficients;
+        }
+        r2.models.noCycle = calc(
+          rows,
+          without,
+          origin,
+          p.planned,
+          nc
+        ).models.experimental;
+      }
       const contextInputs =
         contextConfig === c ? r : calc(rows, contextConfig, origin, p.planned);
       if (contextInputs.missing.length) {
@@ -594,20 +673,22 @@
       }
     });
     const metrics = {};
-    ["last", "mean", "ar", "context", "experimental"].forEach((k) => {
-      const a = scored.filter((x) => Number.isFinite(x.models[k]));
-      if (!a.length) return;
-      const e = a.map((x) => x.models[k] - x.actual),
-        em = a.map((x) => Math.exp(x.models[k]) - Math.exp(x.actual));
-      metrics[k] = {
-        n: a.length,
-        dates: new Set(a.map((x) => x.date)).size,
-        mae: mean(e.map(Math.abs)),
-        rmse: Math.sqrt(mean(e.map((x) => x * x))),
-        maeMs: mean(em.map(Math.abs)),
-        rmseMs: Math.sqrt(mean(em.map((x) => x * x))),
-      };
-    });
+    ["last", "mean", "ar", "context", "experimental", "noCycle"].forEach(
+      (k) => {
+        const a = scored.filter((x) => Number.isFinite(x.models[k]));
+        if (!a.length) return;
+        const e = a.map((x) => x.models[k] - x.actual),
+          em = a.map((x) => Math.exp(x.models[k]) - Math.exp(x.actual));
+        metrics[k] = {
+          n: a.length,
+          dates: new Set(a.map((x) => x.date)).size,
+          mae: mean(e.map(Math.abs)),
+          rmse: Math.sqrt(mean(e.map((x) => x * x))),
+          maeMs: mean(em.map(Math.abs)),
+          rmseMs: Math.sqrt(mean(em.map((x) => x * x))),
+        };
+      }
+    );
     const covered = scored.filter((x) => x.interval);
     return {
       scored,
@@ -715,6 +796,10 @@
       "fatigue",
       "work",
       "diet",
+      "cycleLuteal",
+      "cycleStatus",
+      "cycleMethod",
+      "cycleId",
     ];
     return [
       keys.join(","),
