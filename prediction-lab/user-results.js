@@ -27,7 +27,7 @@
     text("message", "");
     text("source", source);
     text("value", fmt(value));
-    text("reference", fmt(reference) + " ms personal reference");
+    text("reference", fmt(reference) + " ms in your personal reference");
     const delta = (value / reference - 1) * 100;
     text(
       "change",
@@ -35,7 +35,7 @@
     );
     text(
       "time",
-      "Forecast for " +
+      "Next check-in: " +
         new Intl.DateTimeFormat("en-GB", {
           timeZone: result.config.zone || "UTC",
           dateStyle: "medium",
@@ -100,7 +100,7 @@
             " (" +
             advice.value +
             "). Optional; observe how you feel."
-        : "No additional action is suggested from the available context."
+        : "Choose one of these optional ideas, or keep doing what works for you."
     );
     const strengths = [];
     if (r.values.sleep != null && r.values.sleep >= 7)
@@ -140,13 +140,33 @@
       "Choose an easy movement break if it feels comfortable.",
       "Check again under similar quiet conditions to see how your pattern develops.",
     ]);
+    root.querySelectorAll('[data-result="suggestions"] li').forEach((li) => {
+      const label = li.textContent;
+      li.textContent = "";
+      const button = document.createElement("button");
+      button.type = "button";
+      button.setAttribute("aria-pressed", "false");
+      button.textContent = label;
+      button.onclick = () => {
+        const chosen = button.getAttribute("aria-pressed") !== "true";
+        button.setAttribute("aria-pressed", String(chosen));
+        text(
+          "choice",
+          chosen
+            ? "A small intention, just for you. You can change your mind anytime."
+            : "Choose what feels right for today."
+        );
+      };
+      li.appendChild(button);
+    });
+    text("choice", "Pick an idea if you’d like. Everything here is optional.");
     text(
       "encouragement",
-      "Small, consistent steps count. Let how you feel guide your pace. These observations do not establish why HRV changed."
+      "You don’t have to do everything. Let how you feel guide your pace."
     );
     text(
       "uncertainty",
-      "Prediction interval not available in this view. This experimental estimate has not been prospectively validated."
+      "This is an experimental estimate, not a health score. An uncertainty range is not available in this view. Higher HRV is not automatically better, and the habits shown do not establish why it changed."
     );
     text(
       "cycle",
@@ -242,12 +262,9 @@
         runAt: new Date().toISOString(),
         modelVersion: E.VERSION,
       },
-      "SAMPLE FORECAST · synthetic data"
+      "Sample preview · synthetic data"
     );
-    text(
-      "message",
-      "Sample only. Your measurements and saved experiments have not been changed."
-    );
+    text("message", "You’re viewing an example, not your personal forecast.");
   };
   function initialize() {
     const context = document.querySelector(".wellbeing-grid");
