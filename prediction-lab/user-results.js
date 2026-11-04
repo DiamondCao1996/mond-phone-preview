@@ -4,6 +4,16 @@
   const E = window.LabEngine,
     root = document.getElementById("user-prediction");
   if (!root || !E) return;
+  const nav = document.getElementById("prediction-nav");
+  if (nav)
+    nav.onclick = () => {
+      document.querySelector('[data-view="home"]').click();
+      requestAnimationFrame(() => {
+        root.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#user-prediction");
+      });
+    };
+
   const text = (id, value) =>
     (root.querySelector('[data-result="' + id + '"]').textContent = value);
   const fmt = (n) => (Number.isFinite(n) ? n.toFixed(1) : "—");

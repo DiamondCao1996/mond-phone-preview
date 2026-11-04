@@ -83,3 +83,9 @@
     font-size: 26px;
   }
 }
+
+@media (max-width: 740px) {
+  .sidebar nav {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
