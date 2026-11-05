@@ -1,11 +1,11 @@
 # MOND world-model evidence map and references
-# MOND 世界模型证据映射与参考文献
+# MOND 世界模型研究依据与参考文献
 
 Original bibliography transcribed from *HRV Evidence and World Model Development Report*, 31 October 2026. Numbers retain the report’s numbering. This appendix preserves source provenance, not a new systematic evidence review.
 
-原始文献转录自 2026 年 10 月 31 日报告，编号沿用原报告。本附录保留来源与范围，不构成新的系统证据评价。
+以下文献整理自 2026 年 10 月 31 日的原始报告，保留原编号，方便查阅。本附录用于说明研究依据，未重新开展系统综述。
 
-## Factor mapping / 因素映射
+## Factor mapping / 各因素对应的研究
 
 | Factor / 因素 | Original paper IDs / 原报告文献编号 |
 |---|---|
@@ -15,7 +15,7 @@ Original bibliography transcribed from *HRV Evidence and World Model Development
 | Physical activity / 身体活动 | 31, 36 |
 | Age / 年龄 | 8 |
 | Height / 身高 | 9 |
-| Education / 教育背景 | 4 |
+| Education / 受教育程度 | 4 |
 | Heart failure / 心力衰竭 | 10–12 |
 | Mental health / 心理健康 | 13 |
 | Life expectancy research / 预期寿命研究 | 14, 15 |
@@ -32,7 +32,7 @@ Original bibliography transcribed from *HRV Evidence and World Model Development
 
 The evidence differs in design and strength. Associations, intervention results and proposed model components serve different purposes. Heart-failure and survival studies do not establish consumer diagnosis or lifespan estimates. Reading, meditation and diet do not carry assumed HRV gains.
 
-研究设计与证据强度不同，相关性研究、干预结果与拟议模型组件用途各异。心衰与生存研究不能直接形成消费者诊断或寿命估计；阅读、冥想与饮食也不带有预设 HRV 增益。
+这些研究采用的方法不同，证据强度也不同。相关性研究用于发现可能的联系，干预试验用于检验行动效果。心衰和生存研究尚不能直接用于 App 中的疾病诊断或寿命预测，也不能预设阅读、冥想或饮食调整一定会提高 HRV。
 
 ## Original bibliography / 原始参考文献
 
@@ -79,9 +79,9 @@ The evidence differs in design and strength. Associations, intervention results 
 ## Additional context / 补充文献
 
 40. Holland, J. H. (1992). [Complex Adaptive Systems](https://www.jstor.org/stable/20025416). *Daedalus, 121*(1), 17–30. 系统框架。
-41. Schmalenberger et al. (2019). [A Systematic Review and Meta-Analysis of Within-Person Changes in Cardiac Vagal Activity across the Menstrual Cycle](https://doi.org/10.3390/jcm8111946). 周期相关证据。
-42. Schaffarczyk et al. (2026). [Cardiac autonomic regulation across the menstrual cycle is highly individual](https://doi.org/10.1152/ajpregu.00028.2026). 个体周期动态。
+41. Schmalenberger et al. (2019). [A Systematic Review and Meta-Analysis of Within-Person Changes in Cardiac Vagal Activity across the Menstrual Cycle](https://doi.org/10.3390/jcm8111946). 月经周期相关研究。
+42. Schaffarczyk et al. (2026). [Cardiac autonomic regulation across the menstrual cycle is highly individual](https://doi.org/10.1152/ajpregu.00028.2026). 个人 HRV 在月经周期中的变化。
 
 The world-model papers are conceptual sources. The bibliography supplies hypotheses and methods, not pretrained MOND coefficients or evidence that the complete system is implemented.
 
-世界模型论文属于概念来源。参考文献提供假设与方法，并非 MOND 的预训练系数，也不意味着完整系统已经实现。
+世界模型相关论文为架构设计提供思路。这些文献提供研究假设和方法，不直接提供 MOND 的模型参数，也不代表完整系统已经建成。
